@@ -7,14 +7,17 @@
       <h5>Category: {{ event.category }}</h5>
     </div>
 
-    <BaseIcon name="map"><h2>Location</h2></BaseIcon>
+    <BaseIcon name="map">
+      <h2>Location</h2>
+    </BaseIcon>
 
     <address>{{ event.location }}</address>
 
     <h2>Event details</h2>
     <p>{{ event.description }}</p>
 
-    <h2>Attendees
+    <h2>
+      Attendees
       <span class="badge -fill-gradient">{{ event.attendees ? event.attendees.length : 0 }}</span>
     </h2>
     <ul class="list-group">
@@ -25,17 +28,27 @@
   </div>
 </template>
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
+import NProgress from 'nprogress'
+import store from '@/store/store'
 
 export default {
   props: ['id'],
-  created() {
-    this.fetchEvent(this.id)
+  beforeRouteEnter(routeTo, routeFrom, next) {
+    console.log('beforeRouteEnter started')
+    NProgress.start()
+    console.log('NProgress.start started')
+    store.dispatch('event/fetchEvent', routeTo.params.id).then(() => {
+      console.log('store.dispatch event/fetchEvent completed.')
+      NProgress.done()
+      next()
+      //above is calling fetchEvent, then when it's done finish the progress bar
+      //and continue navigation
+    })
   },
   computed: mapState({
     event: state => state.event.event
-  }),
-  methods: mapActions('event', ['fetchEvent'])
+  })
 }
 </script>
 <style scoped>
